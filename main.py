@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile, join
 from matchings import *
 from create_inverted_index import *
+from search import *
 import numpy as np
 
 mypath = "sampleDoc"
@@ -25,4 +26,6 @@ def extract_dictionaries(file_names):
 dicts = extract_dictionaries(onlyfiles)
 dicts = matching_4(matching_3(matching_2(dicts)))
 dicts = {key: [v for v in val if v != ''] for key, val in dicts.items()}
-create_inverted_index(dicts)
+inverted_index = create_inverted_index(dicts)
+print('Inverted indexes are ready, enter your query')
+search(inverted_index, 'پرسپولیس چند مدت')
