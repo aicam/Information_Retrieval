@@ -1,4 +1,8 @@
 import numpy as np
+import pandas as pd
 
-a = np.array(['سلام', 'بهترین'])
-print(np.char.replace(a, ['ام','ترین'], ''))
+df = pd.read_csv('persian_dict.csv')
+
+
+unique, counts = np.unique(np.array(['سل', 'الو', 'چک', 'سل']), return_counts=True)
+print(counts, " ", unique)
