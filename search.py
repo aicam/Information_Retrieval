@@ -1,6 +1,5 @@
 import numpy as np
 import collections
-from sklearn.metrics.pairwise import cosine_similarity
 
 def search(ii, q):
     terms = q.split(' ')
@@ -26,11 +25,12 @@ def search_by_tfidf(tfidf, docs, query, dicts):
     eliminated_tfidf = tfidf[np.where(np.isin(all_terms, list(weights.keys())))]
     q = np.array(list(collections.OrderedDict(sorted(weights.items(), reverse=True)).values()))
     return_docs = []
+    norm_q = np.linalg.norm(q)
     for i in range(len(docs)):
         d = eliminated_tfidf[:,i]
-        print(d)
-        # print(np.dot(q, d)/(np.linalg.norm(q)*np.linalg.norm(d)))
-        return_docs.append({docs[i]: cosine_similarity(q.reshape([-1, 1]), eliminated_tfidf[:,i].reshape([-1, 1]))})
-    # print(return_docs)
+        if not np.any(d):
+            continue
+        return_docs.append({docs[i]: np.dot(q, d)/(norm_q*np.linalg.norm(d))})
+    print(return_docs)
 
 
