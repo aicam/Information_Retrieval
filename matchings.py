@@ -26,7 +26,10 @@ def matching_3(dics):
 def matching_4(dics):
     special_chars = np.array(['ترین', 'تر', 'ها', 'به'])
     for sc in special_chars:
-        dics = {key: np.char.replace(val, sc, '') for key, val in dics.items()}
+        try:
+            dics = {key: np.char.replace(val, sc, '') for key, val in dics.items()}
+        except TypeError:
+            pass
     return dics
 
 ## Remove vocabs that are not represented in the dictionary

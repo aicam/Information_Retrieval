@@ -14,7 +14,7 @@ def search(ii, q):
 def search_by_tfidf(tfidf, docs, query, dicts):
     query_terms = query.split(' ')
     query_terms_unique = np.unique(query_terms)
-    all_terms = list(dicts.keys())
+    all_terms = np.array(list(dicts.keys()))
     weights = {}
     for term in query_terms_unique:
         if (term not in all_terms):
@@ -22,8 +22,12 @@ def search_by_tfidf(tfidf, docs, query, dicts):
         tf = 1 + np.log10(query_terms.count(term))
         idf = np.log10(len(docs) / len(dicts[term]))
         weights.update({term: tf*idf})
-    eliminated_tfidf = tfidf[np.where(np.isin(all_terms, list(weights.keys())))]
-    q = np.array(list(collections.OrderedDict(sorted(weights.items(), reverse=True)).values()))
+    q = np.array(list(collections.OrderedDict(sorted(weights.items())).values()))
+    weight_terms = np.array(list(collections.OrderedDict(sorted(weights.items())).keys()))
+    eliminated_indices = []
+    for i in range(len(weight_terms)):
+        eliminated_indices.append(np.where(all_terms == weight_terms[i])[0][0])
+    eliminated_tfidf = tfidf[eliminated_indices]#np.where(np.isin(all_terms, sorted(list(weights.keys()), reverse=True)))]
     return_docs = []
     norm_q = np.linalg.norm(q)
     for i in range(len(docs)):
@@ -31,6 +35,24 @@ def search_by_tfidf(tfidf, docs, query, dicts):
         if not np.any(d):
             continue
         return_docs.append({docs[i]: np.dot(q, d)/(norm_q*np.linalg.norm(d))})
-    print(return_docs)
+    print(sorted(return_docs, key=lambda x: list(x.values())[0], reverse=True))
 
 
+def search_for_category(tfidf_center, docs, query, dicts):
+    query_terms = query.split(' ')
+    query_terms_unique = np.unique(query_terms)
+    all_terms = np.array(list(dicts.keys()))
+    weights = {}
+    for term in query_terms_unique:
+        if (term not in all_terms):
+            continue
+        tf = 1 + np.log10(query_terms.count(term))
+        idf = np.log10(len(docs) / len(dicts[term]))
+        weights.update({term: tf * idf})
+    q = np.array(list(collections.OrderedDict(sorted(weights.items())).values()))
+    weight_terms = np.array(list(collections.OrderedDict(sorted(weights.items())).keys()))
+    shared_indices = []
+    for i in range(len(weight_terms)):
+        shared_indices.append(np.where(all_terms == weight_terms[i])[0][0])
+    d = tfidf_center[shared_indices]
+    return np.dot(q, d)/(np.linalg.norm(q)*np.linalg.norm(d)) * len(shared_indices)
